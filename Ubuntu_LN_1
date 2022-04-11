@@ -1,0 +1,80 @@
+
+###################################安装文件
+#更新软件
+sudo apt-update
+sudo apt-upgrade
+#安装iptables工具（NAT）
+sudo apt install net-tools
+#安装DHCP配置工具（DHCP）
+sudo apt install isc-dhcp-server
+#安装DNS配置和检测工具
+sudo apt install bind9
+sudo apt install dnsutils
+#安装SSH服务端
+sudo apt install openssh-server
+#安装ufw防火墙
+sudo apt install ufw
+
+
+
+
+
+############################DHCP
+#接口文件
+/etc/netplan/01-network-manager-all.yaml
+#DHCP配置文件
+/etc/dhcp/dhcpd.conf
+#DHCP侦听接口文件
+/etc/default/isc-dhcp-server
+#上面三个文件配置完，执行网络和DHCP更新命令
+
+sudo netplan apply
+sudo systemctl restart isc-dhcp-server.service
+
+
+
+
+
+############################DNS
+#缓存域名服务器配置文件
+/etc/bind/named.conf.options
+#执行更新命令
+sudo systemctl restart bind9.service
+#域名解析local文件
+/etc/bind/named.conf.local
+#执行备份正向域名解析文件命令
+sudo cp /etc/bind/db.local /etc/bind/db.liningtest.com
+#正向域名解析文件
+/etc/bind/db.liningtest.com
+
+
+
+#执行备份反向域名解析文件命令
+sudo cp /etc/bind/db.local /etc/bind/db.192.168.48
+#反向域名解析文件
+/etc/bind/db.192.168.48
+
+#执行更新命令
+sudo systemctl restart bind9.service
+
+
+
+
+
+############################NAT
+#配置控制转发功能文件
+/etc/default/ufw
+/etc/ufw/sysctl.conf
+#配置NAT命令
+iptables -t nat -A PREROUTING -i ens33 -d 192.168.188.29 -j
+DNAT --to 192.168.48.150
+iptables -t nat -A POSTROUTING -o ens33 -s 192.168.48.150 -j
+SNAT --to 192.168.188.29
+#配置网关命令允许192.168.188.0/24网段客户端访问
+iptables -P INPUT DROP
+iptables -t filter -I INPUT -i ens33 -s 192.168.188.0/24 -j ACCRPT
+
+
+
+
+
