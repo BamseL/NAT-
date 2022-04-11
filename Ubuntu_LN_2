@@ -1,0 +1,13 @@
+###################################安装文件
+#安装SSH客户端
+sudo apt install openssh-client
+
+
+###################################DHCP
+#接口文件
+/etc/netplan/01-network-manager-all.yaml
+
+
+###################################DHCP
+#SSH连接命令
+ssh lnwindows@192.168.188.1
